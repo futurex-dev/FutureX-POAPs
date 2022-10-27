@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "./PoapRoles.sol";
@@ -186,15 +184,14 @@ contract Poap is
         _burn(tokenId);
     }
 
-    function initialize(
+    function __POAP_init(
         string memory __name,
         string memory __symbol,
         string memory __baseURI,
         address[] memory admins
     ) public initializer {
-        // ERC721.initialize();
-        __ERC721_init(__name, __symbol);
-        // ERC721Enumerable.initialize();
+        ERC721Upgradeable.__ERC721_init(__name, __symbol);
+        // __ERC721_init(__name, __symbol);
         PoapRoles.initialize(msg.sender);
         PoapPausable.initialize();
 
