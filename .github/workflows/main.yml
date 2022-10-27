@@ -1,0 +1,25 @@
+name: Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install packages
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install deps
+        shell: bash
+        run: |
+          npm install
+      - name: Build contracts
+        run: npx hardhat compile
+      - name: Run test
+        run: npx hardhat test
