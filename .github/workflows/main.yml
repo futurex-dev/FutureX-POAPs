@@ -2,8 +2,12 @@ name: Test
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
 
 jobs:
   tests:
@@ -11,7 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Install packages
+      - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18

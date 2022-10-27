@@ -1,6 +1,13 @@
-# Sample Hardhat Project
+<div align="center">
+  <h1>FutureX POAPs</h1>
+  <p>
+    <a href="https://github.com/futurex-dev/FutureX-POAPs/actions?query=workflow%3Atest">
+      <img src="https://github.com/futurex-dev/FutureX-POAPs/actions/workflows/main.yml/badge.svg">
+    </a>
+  </p>
+</div>
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+## Commands  
 
 Try running some of the following tasks:
 
