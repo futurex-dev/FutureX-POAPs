@@ -7,7 +7,7 @@
   </p>
 </div>
 
-*Forded from [poap-xyz/poap-contracts](https://github.com/poap-xyz/poap-contracts)*
+*Forked from [poap-xyz/poap-contracts](https://github.com/poap-xyz/poap-contracts)*
 
 ## Commands  
 
