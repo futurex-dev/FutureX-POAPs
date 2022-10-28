@@ -2,7 +2,9 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-web3");
 require("hardhat-gas-reporter");
+require("solidity-coverage");
 require('@openzeppelin/hardhat-upgrades');
+
 
 
 
@@ -12,9 +14,9 @@ require("@nomiclabs/hardhat-ethers");
 // const { API_URL, PRIVATE_KEY } = process.env;
 module.exports = {
   solidity: "0.8.7",
-  // gasReporter: {
-  //   enabled: (process.env.REPORT_GAS) ? true : false
-  // },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS
+  },
   // defaultNetwork: "goerli",
   allowUnlimitedContractSize: true,
   networks: {

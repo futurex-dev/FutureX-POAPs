@@ -25,5 +25,15 @@ jobs:
           npm install
       - name: Build contracts
         run: npx hardhat compile
-      - name: Run test
-        run: npx hardhat test
+      - name: Run test and coverage
+        run: npx hardhat coverage --testfiles "test/*.js"
+      - name: Check codecov file
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./coverage.json"
+      - name: Upload coverage from test to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: ./coverage.json
+          token: ${{ secrets.CODECOV_TOKEN }}
