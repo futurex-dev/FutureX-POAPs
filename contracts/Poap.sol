@@ -137,21 +137,6 @@ contract Poap is
     }
 
     /**
-     * @dev Function to mint tokens with a specific id
-     * @param eventId EventId for the new token
-     * @param tokenId TokenId for the new token
-     * @param to The address that will receive the minted tokens.
-     * @return A boolean that indicates if the operation was successful.
-     */
-    function mintToken(
-        uint256 eventId,
-        uint256 tokenId,
-        address to
-    ) public whenNotPaused onlyEventMinter(eventId) returns (bool) {
-        return _mintToken(eventId, tokenId, to);
-    }
-
-    /**
      * @dev Function to mint tokens
      * @param eventId EventId for the new token
      * @param to The address that will receive the minted tokens.
@@ -215,23 +200,7 @@ contract Poap is
         }
 
         _bbaseURI = __baseURI;
-
-        // register the supported interfaces to conform to ERC721 via ERC165
-        // _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
-
-    // /**
-    //  * @dev Internal function to burn a specific token
-    //  * Reverts if the token does not exist
-    //  *
-    //  * @param owner owner of the token to burn
-    //  * @param tokenId uint256 ID of the token being burned by the msg.sender
-    //  */
-    // function _burn(address owner, uint256 tokenId) internal {
-    //     // super._burn(owner, tokenId);
-
-    //     delete _tokenEvent[tokenId];
-    // }
 
     /**
      * @dev Function to mint tokens
