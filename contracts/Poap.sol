@@ -37,6 +37,20 @@ contract Poap is
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
+    modifier eventOnce(uint256 eventId, address to) {
+        require(isAdmin(msg.sender));
+        uint256 balances = ERC721Upgradeable.balanceOf(to);
+        uint256 tokenId;
+        for (uint256 i = 0; i < balances; ++i) {
+            tokenId = tokenOfOwnerByIndex(to, i);
+            require(
+                eventId != tokenEvent(tokenId),
+                "Poap: already assigned the event"
+            );
+        }
+        _;
+    }
+
     function tokenEvent(uint256 tokenId) public view returns (uint256) {
         return _tokenEvent[tokenId];
     }
@@ -230,8 +244,7 @@ contract Poap is
         uint256 eventId,
         uint256 tokenId,
         address to
-    ) internal returns (bool) {
-        // TODO Verify that the token receiver ('to') do not have already a token for the event ('eventId')
+    ) internal eventOnce(eventId, to) returns (bool) {
         _mint(to, tokenId);
         _tokenEvent[tokenId] = eventId;
         emit EventToken(eventId, tokenId);
