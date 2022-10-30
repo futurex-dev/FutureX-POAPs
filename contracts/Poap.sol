@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "./PoapRoles.sol";
+import "./PoapEvent.sol";
 import "./PoapPausable.sol";
 
 // Desired Features
@@ -21,6 +22,7 @@ contract Poap is
     Initializable,
     ERC721EnumerableUpgradeable,
     ERC721URIStorageUpgradeable,
+    PoapEvent,
     PoapRoles,
     PoapPausable
 {
@@ -35,26 +37,37 @@ contract Poap is
     CountersUpgradeable.Counter private lastId;
 
     // EventId for each token
-    mapping(uint256 => uint256) private _tokenEvent;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
-    modifier eventOnce(uint256 eventId, address to) {
-        require(isAdmin(msg.sender));
-        uint256 balances = ERC721Upgradeable.balanceOf(to);
-        uint256 tokenId;
-        for (uint256 i = 0; i < balances; ++i) {
-            tokenId = tokenOfOwnerByIndex(to, i);
-            require(
-                eventId != tokenEvent(tokenId),
-                "Poap: already assigned the event"
-            );
-        }
-        _;
+    function createEvent(uint256 eventId, string memory eventName)
+        public
+        onlyAdmin
+    {
+        _createEvent(eventId, eventName);
     }
 
-    function tokenEvent(uint256 tokenId) public view returns (uint256) {
-        return _tokenEvent[tokenId];
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        tokenExist(tokenId)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function setBaseURI(string memory __baseURI) public onlyAdmin {
+        _bbaseURI = __baseURI;
     }
 
     /**
@@ -162,6 +175,8 @@ contract Poap is
      */
     function burn(uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender));
+        removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
+        removeTokenEvent(tokenId);
         _burn(tokenId);
     }
 
@@ -172,8 +187,9 @@ contract Poap is
         address[] memory admins
     ) public initializer {
         ERC721Upgradeable.__ERC721_init(__name, __symbol);
-        PoapRoles.initialize(msg.sender);
-        PoapPausable.initialize();
+        PoapRoles.__ROLE_init(msg.sender);
+        PoapPausable.__PAUSABLE_init();
+        PoapEvent.__EVENT_init();
 
         // Add the requested admins
         for (uint256 i = 0; i < admins.length; ++i) {
@@ -195,10 +211,11 @@ contract Poap is
         uint256 tokenId,
         string memory _tokenURI,
         address to
-    ) internal eventOnce(eventId, to) returns (bool) {
+    ) internal returns (bool) {
         _mint(to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
-        _tokenEvent[tokenId] = eventId;
+        addTokenEvent(eventId, tokenId);
+        addEventUser(eventId, to);
         emit EventToken(eventId, tokenId);
         return true;
     }
@@ -218,29 +235,7 @@ contract Poap is
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
     function _baseURI() internal view override returns (string memory) {
         return _bbaseURI;
-    }
-
-    function setBaseURI(string memory __baseURI) public onlyAdmin {
-        _bbaseURI = __baseURI;
     }
 }

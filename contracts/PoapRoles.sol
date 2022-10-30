@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "./PoapEvent.sol";
 import "./Roles.sol";
 
-contract PoapRoles is Initializable {
+contract PoapRoles is Initializable, PoapEvent {
     using Roles for Roles.Role;
 
     event AdminAdded(address indexed account);
@@ -15,7 +16,7 @@ contract PoapRoles is Initializable {
     Roles.Role private _admins;
     mapping(uint256 => Roles.Role) private _minters;
 
-    function initialize(address sender) public initializer {
+    function __ROLE_init(address sender) public initializer {
         if (!isAdmin(sender)) {
             _addAdmin(sender);
         }
@@ -38,6 +39,7 @@ contract PoapRoles is Initializable {
     function isEventMinter(uint256 eventId, address account)
         public
         view
+        eventExist(eventId)
         returns (bool)
     {
         return isAdmin(account) || _minters[eventId].has(account);
@@ -83,7 +85,10 @@ contract PoapRoles is Initializable {
         emit AdminAdded(account);
     }
 
-    function _removeEventMinter(uint256 eventId, address account) internal {
+    function _removeEventMinter(uint256 eventId, address account)
+        internal
+        eventExist(eventId)
+    {
         _minters[eventId].remove(account);
         emit EventMinterRemoved(eventId, account);
     }

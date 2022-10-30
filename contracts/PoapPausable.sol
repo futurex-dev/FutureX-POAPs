@@ -14,7 +14,7 @@ contract PoapPausable is Initializable, PoapRoles {
 
     bool private _paused;
 
-    function initialize() public initializer {
+    function __PAUSABLE_init() public initializer {
         _paused = false;
     }
 
