@@ -24,24 +24,28 @@ describe("Poap main test", function () {
     expect(await contract.isAdmin(owner.address)).to.equal(true);
     expect(await contract.isAdmin(addr1.address)).to.equal(true);
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
+    await contract.createEvent(1, "temp#1");
     expect(await contract.isEventMinter(1, owner.address)).to.equal(true);
     expect(await contract.isEventMinter(1, addr1.address)).to.equal(true);
     expect(await contract.isEventMinter(1, addr2.address)).to.equal(false);
   });
-  it("Should check POAPPausable", async function () {
+  it("Should check POAPEvent", async function () {
     const { owner, contract } = await loadFixture(contractFixture);
+    const EVENT = 128
     // -------------------
-    // Poap pause checking
-    expect(await contract.paused()).to.equal(false);
-    await contract.pause();
-    expect(await contract.paused()).to.equal(true);
-    await contract.unpause();
-    expect(await contract.paused()).to.equal(false);
-
+    // Poap event checking
+    await expect(contract.mintToken(EVENT, "poap-event-test", owner.address)).to.be.revertedWith("Poap: event not exists");
+    await contract.createEvent(EVENT, "event test");
+    expect(await contract.eventMetaName(EVENT)).to.equal("event test");
+    await contract.mintToken(EVENT, "poap-event-test", owner.address)
+    expect(await contract.eventHasUser(EVENT, owner.address)).to.equal(true);
+    expect(await contract.tokenEvent(await contract.tokenOfOwnerByIndex(owner.address, 0))).to.equal(EVENT);
   });
   it("Should check POAPRole", async function () {
     const { owner, contract, addr1, addr2 } = await loadFixture(contractFixture);
     const EVENT = 256;
+
+    await contract.createEvent(EVENT, "temp#2");
     // -------------------
     // PoapRole admin
     await contract.connect(addr1).renounceAdmin(); // msg.send = addr1
@@ -65,12 +69,25 @@ describe("Poap main test", function () {
     await contract.connect(addr2).renounceEventMinter(EVENT);
     expect(await contract.isEventMinter(EVENT, addr2.address)).to.equal(false);
   });
+  it("Should check POAPPausable", async function () {
+    const { owner, contract } = await loadFixture(contractFixture);
+    // -------------------
+    // Poap pause checking
+    expect(await contract.paused()).to.equal(false);
+    await contract.pause();
+    expect(await contract.paused()).to.equal(true);
+    await contract.unpause();
+    expect(await contract.paused()).to.equal(false);
+
+  });
   it("Should check POAP mint", async function () {
     const { owner, contract, addr1, addr2, baseURI } = await loadFixture(contractFixture);
     const EVENT = 512;
     const EVENT2 = 1024;
     const afterBaseURI = baseURI + "semi-token/";
 
+    await contract.createEvent(EVENT, "temp#3");
+    await contract.createEvent(EVENT2, "temp#4");
     async function checkPoap(address, baseURI, index, contract, shouldBalance, shouldId, shouldEvent) {
       expect(await contract.balanceOf(address)).to.equal(shouldBalance);
       const [tokenId, eventId] = await contract.tokenDetailsOfOwnerByIndex(address, index);
@@ -99,4 +116,6 @@ describe("Poap main test", function () {
     await contract.setBaseURI(afterBaseURI);
     await checkPoap(addr2.address, afterBaseURI, 0, contract, 1, 5, EVENT2)
   });
+  // it("Should check POAP transforms", async function() {
+  // });
 });
