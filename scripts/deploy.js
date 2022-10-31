@@ -1,11 +1,11 @@
 async function main() {
   // Grab the contract factory 
-  const MyNFT = await ethers.getContractFactory("GusNFT");
+  const contract = await ethers.getContractFactory("Poap");
 
   // Start deployment, returning a promise that resolves to a contract object
-  const myNFT = await MyNFT.deploy(); // Instance of the contract 
-  await myNFT.deployed();
-  console.log("Contract deployed to address:", myNFT.address);
+  const contracted = await contract.deploy(); // Instance of the contract 
+  await contracted.deployed();
+  console.log("Contract deployed to address:", contracted.address);
 }
 
 main()

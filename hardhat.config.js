@@ -11,7 +11,7 @@ require('@openzeppelin/hardhat-upgrades');
 /** @type import('hardhat/config').HardhatUserConfig */
 require('dotenv').config();
 require("@nomiclabs/hardhat-ethers");
-// const { API_URL, PRIVATE_KEY } = process.env;
+
 module.exports = {
   solidity: "0.8.7",
   gasReporter: {
@@ -21,9 +21,13 @@ module.exports = {
   allowUnlimitedContractSize: true,
   networks: {
     hardhat: {},
-    // goerli: {
-    //   url: API_URL,
-    //   accounts: [`0x${PRIVATE_KEY}`]
-    // }
   },
 };
+
+const { Goerli_API_URL, Goerli_PRIVATE_KEY } = process.env;
+if (Goerli_API_URL) {
+  module.exports['networks']['goerli'] = {
+    url: Goerli_API_URL,
+    accounts: [`0x${Goerli_PRIVATE_KEY}`]
+  };
+}
