@@ -25,6 +25,11 @@ contract PoapEvent is Initializable {
         _;
     }
 
+    modifier eventNotExist(uint256 eventId) {
+        require(!_event_exist[eventId], "Poap: event already existed");
+        _;
+    }
+
     modifier userNotExist(uint256 eventId, address user) {
         require(
             !_event_infos[eventId].reverse_index[user],

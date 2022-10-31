@@ -35,16 +35,18 @@ contract Poap is
 
     // Last Used id (used to generate new ids)
     CountersUpgradeable.Counter private lastId;
+    CountersUpgradeable.Counter private lastEventId;
 
     // EventId for each token
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
-    function createEvent(uint256 eventId, string memory eventName)
-        public
-        onlyAdmin
-    {
-        _createEvent(eventId, eventName);
+    function createEvent(string memory eventName) public returns (uint256) {
+        lastEventId.increment();
+        _createEvent(lastEventId.current(), eventName);
+        _addEventMinter(lastEventId.current(), msg.sender);
+
+        return lastEventId.current();
     }
 
     function tokenURI(uint256 tokenId)
