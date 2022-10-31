@@ -14,7 +14,11 @@ contract PoapEvent is Initializable {
         mapping(address => bool) reverse_index;
     }
 
-    event EventAdded(uint256 indexed eventId, string eventName);
+    event EventAdded(
+        uint256 indexed eventId,
+        address indexed creator,
+        string eventName
+    );
 
     mapping(uint256 => Event) private _event_infos;
     mapping(uint256 => uint256) private _token_events;
@@ -49,7 +53,7 @@ contract PoapEvent is Initializable {
         require(!_event_exist[eventId], "Poap: event already existed");
         _event_exist[eventId] = true;
         _event_infos[eventId].name = eventName;
-        emit EventAdded(eventId, eventName);
+        emit EventAdded(eventId, msg.sender, eventName);
     }
 
     function addEventUser(uint256 eventId, address user)
