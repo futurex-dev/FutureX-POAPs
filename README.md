@@ -8,17 +8,21 @@
       <img src="https://codecov.io/gh/futurex-dev/FutureX-POAPs/branch/main/graph/badge.svg?token=3MFLA63A1L"/>
     </a>
   </p>
+  <p> <i> Adapted from <a href="https://github.com/poap-xyz/poap-contracts">poap-xyz/poap-contracts</a></i></p>
 </div>
 
-*Forked from [poap-xyz/poap-contracts](https://github.com/poap-xyz/poap-contracts)*
+## Core functions
+
+*API not stable yet.*
+
+Checkout `test/Poap.js` for more details.
 
 ## Commands  
 
-Try running some of the following tasks:
-
 ```shell
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js --network XXX
+npx hardhat compile # compile contracts to artifacts
+npx hardhat test # test the contracts using test/*.js 
+REPORT_GAS=true npx hardhat test # estimate the contracts gas fee. Extremly SLOW
+
+npx hardhat run scripts/deploy.js --network XXX # not ready yet
 ```
