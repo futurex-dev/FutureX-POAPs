@@ -23,12 +23,15 @@ contract PoapRoles is Initializable, PoapEvent {
     }
 
     modifier onlyAdmin() {
-        require(isAdmin(msg.sender));
+        require(isAdmin(msg.sender), "Poap: only admin can do it");
         _;
     }
 
     modifier onlyEventMinter(uint256 eventId) {
-        require(isEventMinter(eventId, msg.sender));
+        require(
+            isEventMinter(eventId, msg.sender),
+            "Poap: only event-minter or admin can do it"
+        );
         _;
     }
 
