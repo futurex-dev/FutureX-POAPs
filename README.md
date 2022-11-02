@@ -17,6 +17,23 @@
 
 Checkout `test/Poap.js` for more details.
 
+## Deploy to local
+
+1. Enable your local blockchain with command `npx hardhat node` first, and let this session stay opened.
+
+2. Run command `npx hardhat deploy-poap --network localhost` to deploy the Poaps. It shall output the proxy contract address [ADDRESS].
+
+3. Interact with the contract using `npx hardhat console --network localhost`
+
+   ```javascript
+   > const Poap = await ethers.getContractFactory("Poap")
+   > const poap = await Poap.attach("[ADDRESS]")
+   > await poap.name()
+   ...
+   ```
+
+4. Stay the above console opened, you can update the contract functions under `contracts/*` and use `npx hardhat upgrade-poap --network localhost [ADDRESS] ` to upgrade. You can then continue testing the functions with `poap` object in step.3
+
 ## Commands  
 
 ```shell

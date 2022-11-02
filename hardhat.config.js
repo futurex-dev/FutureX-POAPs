@@ -11,13 +11,13 @@ require('@openzeppelin/hardhat-upgrades');
 /** @type import('hardhat/config').HardhatUserConfig */
 require('dotenv').config();
 require("@nomiclabs/hardhat-ethers");
-
+require("./tasks/upgrade-poap")
+require("./tasks/deploy-poap")
 module.exports = {
   solidity: "0.8.7",
   gasReporter: {
     enabled: process.env.REPORT_GAS
   },
-  // defaultNetwork: "goerli",
   allowUnlimitedContractSize: true,
   networks: {
     hardhat: {},
