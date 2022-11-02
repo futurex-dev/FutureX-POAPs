@@ -41,7 +41,7 @@ contract Poap is
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
-    function createEvent(string memory eventName) public returns (uint256) {
+    function createEvent(string memory eventName) external returns (uint256) {
         lastEventId.increment();
         _createEvent(lastEventId.current(), eventName);
         _addEventMinter(lastEventId.current(), msg.sender);
@@ -68,7 +68,7 @@ contract Poap is
         return super.supportsInterface(interfaceId);
     }
 
-    function setBaseURI(string memory __baseURI) public onlyAdmin {
+    function setBaseURI(string memory __baseURI) external onlyAdmin {
         _bbaseURI = __baseURI;
     }
 
@@ -122,7 +122,7 @@ contract Poap is
         uint256 eventId,
         string memory _tokenURI,
         address to
-    ) public whenNotPaused onlyEventMinter(eventId) returns (bool) {
+    ) external whenNotPaused onlyEventMinter(eventId) returns (bool) {
         lastId.increment();
         return _mintToken(eventId, lastId.current(), _tokenURI, to);
     }
@@ -137,7 +137,7 @@ contract Poap is
         uint256 eventId,
         string[] memory _tokenURI,
         address[] memory to
-    ) public whenNotPaused onlyEventMinter(eventId) returns (bool) {
+    ) external whenNotPaused onlyEventMinter(eventId) returns (bool) {
         require(
             _tokenURI.length == to.length,
             "Poap: token urls should have the same length with Users"
@@ -159,7 +159,7 @@ contract Poap is
         uint256[] memory eventIds,
         string[] memory _tokenURI,
         address to
-    ) public whenNotPaused onlyAdmin returns (bool) {
+    ) external whenNotPaused onlyAdmin returns (bool) {
         require(
             _tokenURI.length == eventIds.length,
             "Poap: token urls should have the same length with events"
@@ -175,7 +175,7 @@ contract Poap is
      * @dev Burns a specific ERC721 token.
      * @param tokenId uint256 id of the ERC721 token to be burned.
      */
-    function burn(uint256 tokenId) public {
+    function burn(uint256 tokenId) external {
         require(_isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender));
         removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
         removeTokenEvent(tokenId);

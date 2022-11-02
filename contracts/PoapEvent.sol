@@ -85,7 +85,7 @@ contract PoapEvent is Initializable {
     }
 
     function eventMetaName(uint256 eventId)
-        public
+        external
         view
         eventExist(eventId)
         returns (string memory)
