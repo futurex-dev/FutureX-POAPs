@@ -10,14 +10,14 @@ import "./Roles.sol";
  */
 contract PoapEvent is Initializable {
     struct Event {
-        string name;
+        string meta_uri;
         mapping(address => bool) reverse_index;
     }
 
     event EventAdded(
         uint256 indexed eventId,
         address indexed creator,
-        string eventName
+        string eventURI
     );
 
     mapping(uint256 => Event) private _event_infos;
@@ -49,11 +49,11 @@ contract PoapEvent is Initializable {
 
     function __EVENT_init() public initializer {}
 
-    function _createEvent(uint256 eventId, string memory eventName) internal {
+    function _createEvent(uint256 eventId, string memory eventURI) internal {
         require(!_event_exist[eventId], "Poap: event already existed");
         _event_exist[eventId] = true;
-        _event_infos[eventId].name = eventName;
-        emit EventAdded(eventId, msg.sender, eventName);
+        _event_infos[eventId].meta_uri = eventURI;
+        emit EventAdded(eventId, msg.sender, eventURI);
     }
 
     function addEventUser(uint256 eventId, address user)
@@ -84,13 +84,13 @@ contract PoapEvent is Initializable {
         return _event_infos[eventId].reverse_index[user];
     }
 
-    function eventMetaName(uint256 eventId)
+    function eventMetaURI(uint256 eventId)
         external
         view
         eventExist(eventId)
         returns (string memory)
     {
-        return _event_infos[eventId].name;
+        return _event_infos[eventId].meta_uri;
     }
 
     function tokenEvent(uint256 token)

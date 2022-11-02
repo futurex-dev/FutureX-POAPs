@@ -41,9 +41,9 @@ contract Poap is
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
-    function createEvent(string memory eventName) external returns (uint256) {
+    function createEvent(string calldata eventURI) external returns (uint256) {
         lastEventId.increment();
-        _createEvent(lastEventId.current(), eventName);
+        _createEvent(lastEventId.current(), eventURI);
         _addEventMinter(lastEventId.current(), msg.sender);
 
         return lastEventId.current();

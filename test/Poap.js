@@ -32,7 +32,7 @@ describe("Poap main test", function () {
     expect(await contract.isAdmin(owner.address)).to.equal(true);
     expect(await contract.isAdmin(addr1.address)).to.equal(true);
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
-    const eventId = await unwrapCreateEvent(contract, "temp#1");
+    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1");
     expect(await contract.isEventMinter(eventId, owner.address)).to.equal(true);
     expect(await contract.isEventMinter(eventId, addr1.address)).to.equal(true);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
@@ -43,8 +43,8 @@ describe("Poap main test", function () {
     // -------------------
     // Poap event checking
     await expect(contract.mintToken(eventId_init, "poap-event-test", owner.address)).to.be.revertedWith("Poap: event not exists");
-    const eventId = await unwrapCreateEvent(await contract.connect(addr2), "anyone can create an event");
-    expect(await contract.eventMetaName(eventId)).to.equal("anyone can create an event");
+    const eventId = await unwrapCreateEvent(contract.connect(addr2), "https://futurex.dev/token/anyone");
+    expect(await contract.eventMetaURI(eventId)).to.equal("https://futurex.dev/token/anyone");
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
     await contract.connect(addr2).mintToken(eventId, "poap-event-test", owner.address)
@@ -54,7 +54,7 @@ describe("Poap main test", function () {
   it("Should check POAPRole", async function () {
     const { owner, contract, addr1, addr2 } = await loadFixture(contractFixture);
 
-    const eventId = await unwrapCreateEvent(contract, "temp#2");
+    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2");
     // -------------------
     // PoapRole admin
     await contract.connect(addr1).renounceAdmin(); // msg.send = addr1
@@ -93,8 +93,8 @@ describe("Poap main test", function () {
     const { owner, contract, addr1, addr2, baseURI } = await loadFixture(contractFixture);
     const afterBaseURI = baseURI + "semi-token/";
 
-    const eventId = await unwrapCreateEvent(contract, "temp#3");
-    const eventId2 = await unwrapCreateEvent(contract, "temp#4");
+    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#3");
+    const eventId2 = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#4");
     async function checkPoap(address, baseURI, index, contract, shouldBalance, shouldId, shouldEvent) {
       expect(await contract.balanceOf(address)).to.equal(shouldBalance);
       const [tokenId, eventId] = await contract.tokenDetailsOfOwnerByIndex(address, index);
