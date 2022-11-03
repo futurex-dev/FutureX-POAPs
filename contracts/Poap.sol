@@ -37,10 +37,11 @@ contract Poap is
     CountersUpgradeable.Counter private lastId;
     CountersUpgradeable.Counter private lastEventId;
 
-    // EventId for each token
-
-    bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
-
+    /**
+     * @dev Function to create event. you have to retrieve event id from EventAdded log
+     * @param eventURI event meta uri
+     * @return uint256 the event id
+     */
     function createEvent(string calldata eventURI) external returns (uint256) {
         lastEventId.increment();
         _createEvent(lastEventId.current(), eventURI);
@@ -49,6 +50,11 @@ contract Poap is
         return lastEventId.current();
     }
 
+    /**
+     * @dev Function to view poap's uri
+     * @param tokenId poap's token id.
+     * @return string poap's uri
+     */
     function tokenURI(uint256 tokenId)
         public
         view
@@ -59,57 +65,8 @@ contract Poap is
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
     function setBaseURI(string memory __baseURI) external onlyAdmin {
         _bbaseURI = __baseURI;
-    }
-
-    /**
-     * @dev Gets the token ID at a given index of the tokens list of the requested owner
-     * @param owner address owning the tokens list to be accessed
-     * @param index uint256 representing the index to be accessed of the requested tokens list
-     * @return tokenId uint256 token ID at the given index of the tokens list owned by the requested address
-     * @return eventId uint256 token ID at the given index of the tokens list owned by the requested address
-     */
-    function tokenDetailsOfOwnerByIndex(address owner, uint256 index)
-        public
-        view
-        returns (uint256 tokenId, uint256 eventId)
-    {
-        tokenId = tokenOfOwnerByIndex(owner, index);
-        eventId = tokenEvent(tokenId);
-    }
-
-    function approve(address to, uint256 tokenId)
-        public
-        override
-        whenNotPaused
-    {
-        super.approve(to, tokenId);
-    }
-
-    function setApprovalForAll(address to, bool approved)
-        public
-        override
-        whenNotPaused
-    {
-        super.setApprovalForAll(to, approved);
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override whenNotPaused {
-        super.transferFrom(from, to, tokenId);
     }
 
     /**
@@ -180,6 +137,55 @@ contract Poap is
         removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
         removeTokenEvent(tokenId);
         _burn(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Gets the token ID at a given index of the tokens list of the requested owner
+     * @param owner address owning the tokens list to be accessed
+     * @param index uint256 representing the index to be accessed of the requested tokens list
+     * @return tokenId uint256 token ID at the given index of the tokens list owned by the requested address
+     * @return eventId uint256 token ID at the given index of the tokens list owned by the requested address
+     */
+    function tokenDetailsOfOwnerByIndex(address owner, uint256 index)
+        public
+        view
+        returns (uint256 tokenId, uint256 eventId)
+    {
+        tokenId = tokenOfOwnerByIndex(owner, index);
+        eventId = tokenEvent(tokenId);
+    }
+
+    function approve(address to, uint256 tokenId)
+        public
+        override
+        whenNotPaused
+    {
+        super.approve(to, tokenId);
+    }
+
+    function setApprovalForAll(address to, bool approved)
+        public
+        override
+        whenNotPaused
+    {
+        super.setApprovalForAll(to, approved);
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override whenNotPaused {
+        super.transferFrom(from, to, tokenId);
     }
 
     function __POAP_init(

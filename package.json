@@ -12,13 +12,14 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@nomiclabs/hardhat-etherscan": "^3.1.2",
     "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/hardhat-upgrades": "^1.21.0",
     "ethers": "^5.7.1",
     "hardhat": "^2.11.2",
     "hardhat-gas-reporter": "^1.0.9",
-    "web3": "^1.8.0",
     "solidity-coverage": "^0.8.2",
-    "@openzeppelin/hardhat-upgrades": "^1.21.0"
+    "web3": "^1.8.0"
   },
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "4.7.3",
