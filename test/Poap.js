@@ -101,15 +101,11 @@ describe("Poap main test", function () {
     await checkPoap(owner.address, baseURI, 1, contract, 2, 2, eventId2)
     await checkPoap(addr1.address, baseURI, 0, contract, 1, 3, eventId2)
 
-    await contract.mintUserToManyEvents([eventId, eventId2], ["poap-4", "poap-5"], addr2.address);
-    await checkPoap(addr2.address, baseURI, 0, contract, 2, 4, eventId)
-    await checkPoap(addr2.address, baseURI, 1, contract, 2, 5, eventId2)
-
-    await contract.burn(4); // burn (eventId, addr2)
-    await checkPoap(addr2.address, baseURI, 0, contract, 1, 5, eventId2)
+    await contract.burn(2); // burn (eventId, addr2)
+    await checkPoap(owner.address, baseURI, 0, contract, 1, 1, eventId)
 
     await contract.setBaseURI(afterBaseURI);
-    await checkPoap(addr2.address, afterBaseURI, 0, contract, 1, 5, eventId2)
+    await checkPoap(owner.address, afterBaseURI, 0, contract, 1, 1, eventId)
   });
   // it("Should check POAP transforms", async function() {
   // });

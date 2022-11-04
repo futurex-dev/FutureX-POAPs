@@ -63,7 +63,7 @@ contract Poap is
         return super.tokenURI(tokenId);
     }
 
-    function setBaseURI(string memory __baseURI) external onlyAdmin {
+    function setBaseURI(string calldata __baseURI) external onlyAdmin {
         _bbaseURI = __baseURI;
     }
 
@@ -75,7 +75,7 @@ contract Poap is
      */
     function mintToken(
         uint256 eventId,
-        string memory _tokenURI,
+        string calldata _tokenURI,
         address to
     ) external onlyEventMinter(eventId) returns (bool) {
         lastId.increment();
@@ -90,38 +90,16 @@ contract Poap is
      */
     function mintEventToManyUsers(
         uint256 eventId,
-        string[] memory _tokenURI,
-        address[] memory to
+        string[] calldata _tokenURI,
+        address[] calldata to
     ) external onlyEventMinter(eventId) returns (bool) {
         require(
             _tokenURI.length == to.length,
-            "Poap: token urls should have the same length with Users"
+            "Poap: urls need the same length with users"
         );
         for (uint256 i = 0; i < to.length; ++i) {
             lastId.increment();
             _mintToken(eventId, lastId.current(), _tokenURI[i], to[i]);
-        }
-        return true;
-    }
-
-    /**
-     * @dev Function to mint tokens
-     * @param eventIds EventIds to assing to user
-     * @param to The address that will receive the minted tokens.
-     * @return A boolean that indicates if the operation was successful.
-     */
-    function mintUserToManyEvents(
-        uint256[] memory eventIds,
-        string[] memory _tokenURI,
-        address to
-    ) external onlyAdmin returns (bool) {
-        require(
-            _tokenURI.length == eventIds.length,
-            "Poap: token urls should have the same length with events"
-        );
-        for (uint256 i = 0; i < eventIds.length; ++i) {
-            lastId.increment();
-            _mintToken(eventIds[i], lastId.current(), _tokenURI[i], to);
         }
         return true;
     }
@@ -162,27 +140,11 @@ contract Poap is
         eventId = tokenEvent(tokenId);
     }
 
-    function approve(address to, uint256 tokenId) public override {
-        super.approve(to, tokenId);
-    }
-
-    function setApprovalForAll(address to, bool approved) public override {
-        super.setApprovalForAll(to, approved);
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override {
-        super.transferFrom(from, to, tokenId);
-    }
-
     function __POAP_init(
-        string memory __name,
-        string memory __symbol,
-        string memory __baseURI,
-        address[] memory admins
+        string calldata __name,
+        string calldata __symbol,
+        string calldata __baseURI,
+        address[] calldata admins
     ) public initializer {
         ERC721Upgradeable.__ERC721_init(__name, __symbol);
         PoapRoles.__ROLE_init(msg.sender);
@@ -206,7 +168,7 @@ contract Poap is
     function _mintToken(
         uint256 eventId,
         uint256 tokenId,
-        string memory _tokenURI,
+        string calldata _tokenURI,
         address to
     ) internal returns (bool) {
         _mint(to, tokenId);

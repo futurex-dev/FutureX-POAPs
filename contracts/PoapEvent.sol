@@ -11,7 +11,9 @@ import "./Roles.sol";
 contract PoapEvent is Initializable {
     struct Event {
         string meta_uri;
-        mapping(address => bool) reverse_index;
+        bool status;
+        address[] users;
+        mapping(address => uint256) reverse_index;
     }
 
     event EventAdded(
@@ -26,19 +28,6 @@ contract PoapEvent is Initializable {
 
     modifier eventExist(uint256 eventId) {
         require(_event_exist[eventId], "Poap: event not exists");
-        _;
-    }
-
-    modifier eventNotExist(uint256 eventId) {
-        require(!_event_exist[eventId], "Poap: event already existed");
-        _;
-    }
-
-    modifier userNotExist(uint256 eventId, address user) {
-        require(
-            !_event_infos[eventId].reverse_index[user],
-            "Poap: already assigned the event"
-        );
         _;
     }
 
@@ -59,9 +48,16 @@ contract PoapEvent is Initializable {
     function addEventUser(uint256 eventId, address user)
         internal
         eventExist(eventId)
-        userNotExist(eventId, user)
     {
-        _event_infos[eventId].reverse_index[user] = true;
+        require(
+            _event_infos[eventId].reverse_index[user] == uint256(0),
+            "Poap: already assigned the event"
+        );
+        // user indexs start from 1
+        _event_infos[eventId].reverse_index[user] =
+            _event_infos[eventId].users.length +
+            1;
+        _event_infos[eventId].users.push(user);
     }
 
     function removeEventUser(uint256 eventId, address user)
@@ -69,10 +65,16 @@ contract PoapEvent is Initializable {
         eventExist(eventId)
     {
         require(
-            _event_infos[eventId].reverse_index[user],
+            _event_infos[eventId].reverse_index[user] != uint256(0),
             "Poap: user didn't exist"
         );
-        _event_infos[eventId].reverse_index[user] = false;
+        uint256 user_index = _event_infos[eventId].reverse_index[user] - 1;
+        uint256 total_users = _event_infos[eventId].users.length - 1;
+        _event_infos[eventId].users[user_index] = _event_infos[eventId].users[
+            total_users
+        ];
+        delete _event_infos[eventId].reverse_index[user];
+        _event_infos[eventId].users.pop();
     }
 
     function eventHasUser(uint256 eventId, address user)
@@ -81,7 +83,7 @@ contract PoapEvent is Initializable {
         eventExist(eventId)
         returns (bool)
     {
-        return _event_infos[eventId].reverse_index[user];
+        return _event_infos[eventId].reverse_index[user] != uint256(0);
     }
 
     function eventMetaURI(uint256 eventId)
