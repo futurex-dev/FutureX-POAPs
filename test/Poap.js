@@ -28,7 +28,6 @@ describe("Poap main test", function () {
     // Status checking
     expect(await contract.name()).to.equal("FutureXPoap");
     expect(await contract.symbol()).to.equal("FutureXPoap");
-    expect(await contract.paused()).to.equal(false);
     expect(await contract.isAdmin(owner.address)).to.equal(true);
     expect(await contract.isAdmin(addr1.address)).to.equal(true);
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
@@ -77,17 +76,6 @@ describe("Poap main test", function () {
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
     await contract.connect(addr2).renounceEventMinter(eventId);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
-  });
-  it("Should check POAPPausable", async function () {
-    const { owner, contract } = await loadFixture(contractFixture);
-    // -------------------
-    // Poap pause checking
-    expect(await contract.paused()).to.equal(false);
-    await contract.pause();
-    expect(await contract.paused()).to.equal(true);
-    await contract.unpause();
-    expect(await contract.paused()).to.equal(false);
-
   });
   it("Should check POAP mint", async function () {
     const { owner, contract, addr1, addr2, baseURI } = await loadFixture(contractFixture);

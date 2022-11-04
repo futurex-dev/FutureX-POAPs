@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URISto
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "./PoapRoles.sol";
 import "./PoapEvent.sol";
-import "./PoapPausable.sol";
 
 // Desired Features
 // - Add Event
@@ -23,8 +22,7 @@ contract Poap is
     ERC721EnumerableUpgradeable,
     ERC721URIStorageUpgradeable,
     PoapEvent,
-    PoapRoles,
-    PoapPausable
+    PoapRoles
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
@@ -79,7 +77,7 @@ contract Poap is
         uint256 eventId,
         string memory _tokenURI,
         address to
-    ) external whenNotPaused onlyEventMinter(eventId) returns (bool) {
+    ) external onlyEventMinter(eventId) returns (bool) {
         lastId.increment();
         return _mintToken(eventId, lastId.current(), _tokenURI, to);
     }
@@ -94,7 +92,7 @@ contract Poap is
         uint256 eventId,
         string[] memory _tokenURI,
         address[] memory to
-    ) external whenNotPaused onlyEventMinter(eventId) returns (bool) {
+    ) external onlyEventMinter(eventId) returns (bool) {
         require(
             _tokenURI.length == to.length,
             "Poap: token urls should have the same length with Users"
@@ -116,7 +114,7 @@ contract Poap is
         uint256[] memory eventIds,
         string[] memory _tokenURI,
         address to
-    ) external whenNotPaused onlyAdmin returns (bool) {
+    ) external onlyAdmin returns (bool) {
         require(
             _tokenURI.length == eventIds.length,
             "Poap: token urls should have the same length with events"
@@ -164,19 +162,11 @@ contract Poap is
         eventId = tokenEvent(tokenId);
     }
 
-    function approve(address to, uint256 tokenId)
-        public
-        override
-        whenNotPaused
-    {
+    function approve(address to, uint256 tokenId) public override {
         super.approve(to, tokenId);
     }
 
-    function setApprovalForAll(address to, bool approved)
-        public
-        override
-        whenNotPaused
-    {
+    function setApprovalForAll(address to, bool approved) public override {
         super.setApprovalForAll(to, approved);
     }
 
@@ -184,7 +174,7 @@ contract Poap is
         address from,
         address to,
         uint256 tokenId
-    ) public override whenNotPaused {
+    ) public override {
         super.transferFrom(from, to, tokenId);
     }
 
@@ -196,7 +186,6 @@ contract Poap is
     ) public initializer {
         ERC721Upgradeable.__ERC721_init(__name, __symbol);
         PoapRoles.__ROLE_init(msg.sender);
-        PoapPausable.__PAUSABLE_init();
         PoapEvent.__EVENT_init();
 
         // Add the requested admins
