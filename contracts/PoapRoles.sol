@@ -22,17 +22,15 @@ contract PoapRoles is Initializable, PoapEvent {
         }
     }
 
-    modifier onlyAdmin() {
+    function _requireAdmin() internal view {
         require(isAdmin(msg.sender), "Poap: only admin can do it");
-        _;
     }
 
-    modifier onlyEventMinter(uint256 eventId) {
+    function _requireEventMinter(uint256 eventId) internal view {
         require(
             isEventMinter(eventId, msg.sender),
             "Poap: only event-minter or admin can do it"
         );
-        _;
     }
 
     function isAdmin(address account) public view returns (bool) {
@@ -42,20 +40,18 @@ contract PoapRoles is Initializable, PoapEvent {
     function isEventMinter(uint256 eventId, address account)
         public
         view
-        eventExist(eventId)
         returns (bool)
     {
         return isAdmin(account) || _minters[eventId].has(account);
     }
 
-    function addEventMinter(uint256 eventId, address account)
-        public
-        onlyEventMinter(eventId)
-    {
+    function addEventMinter(uint256 eventId, address account) public {
+        _requireEventMinter(eventId);
         _addEventMinter(eventId, account);
     }
 
-    function addAdmin(address account) public onlyAdmin {
+    function addAdmin(address account) public {
+        _requireAdmin();
         _addAdmin(account);
     }
 
@@ -67,14 +63,13 @@ contract PoapRoles is Initializable, PoapEvent {
         _removeAdmin(msg.sender);
     }
 
-    function removeEventMinter(uint256 eventId, address account)
-        public
-        onlyAdmin
-    {
+    function removeEventMinter(uint256 eventId, address account) public {
+        _requireAdmin();
         _removeEventMinter(eventId, account);
     }
 
-    function removeAdmin(address account) public onlyAdmin {
+    function removeAdmin(address account) public {
+        _requireAdmin();
         _removeAdmin(account);
     }
 
@@ -88,10 +83,8 @@ contract PoapRoles is Initializable, PoapEvent {
         emit AdminAdded(account);
     }
 
-    function _removeEventMinter(uint256 eventId, address account)
-        internal
-        eventExist(eventId)
-    {
+    function _removeEventMinter(uint256 eventId, address account) internal {
+        _requireEventExist(eventId);
         _minters[eventId].remove(account);
         emit EventMinterRemoved(eventId, account);
     }

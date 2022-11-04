@@ -26,14 +26,8 @@ contract PoapEvent is Initializable {
     mapping(uint256 => uint256) private _token_events;
     mapping(uint256 => bool) private _event_exist;
 
-    modifier eventExist(uint256 eventId) {
+    function _requireEventExist(uint256 eventId) internal view {
         require(_event_exist[eventId], "Poap: event not exists");
-        _;
-    }
-
-    modifier tokenExist(uint256 token) {
-        require(_token_events[token] != uint256(0), "Poap: token wasn't exist");
-        _;
     }
 
     function __EVENT_init() public initializer {}
@@ -45,10 +39,8 @@ contract PoapEvent is Initializable {
         emit EventAdded(eventId, msg.sender, eventURI);
     }
 
-    function addEventUser(uint256 eventId, address user)
-        internal
-        eventExist(eventId)
-    {
+    function addEventUser(uint256 eventId, address user) internal {
+        _requireEventExist(eventId);
         require(
             _event_infos[eventId].reverse_index[user] == uint256(0),
             "Poap: already assigned the event"
@@ -60,10 +52,8 @@ contract PoapEvent is Initializable {
         _event_infos[eventId].users.push(user);
     }
 
-    function removeEventUser(uint256 eventId, address user)
-        internal
-        eventExist(eventId)
-    {
+    function removeEventUser(uint256 eventId, address user) internal {
+        _requireEventExist(eventId);
         require(
             _event_infos[eventId].reverse_index[user] != uint256(0),
             "Poap: user didn't exist"
@@ -80,34 +70,28 @@ contract PoapEvent is Initializable {
     function eventHasUser(uint256 eventId, address user)
         public
         view
-        eventExist(eventId)
         returns (bool)
     {
+        _requireEventExist(eventId);
         return _event_infos[eventId].reverse_index[user] != uint256(0);
     }
 
     function eventMetaURI(uint256 eventId)
         external
         view
-        eventExist(eventId)
         returns (string memory)
     {
+        _requireEventExist(eventId);
         return _event_infos[eventId].meta_uri;
     }
 
-    function tokenEvent(uint256 token)
-        public
-        view
-        tokenExist(token)
-        returns (uint256)
-    {
+    function tokenEvent(uint256 token) public view returns (uint256) {
+        require(_token_events[token] != uint256(0), "Poap: token wasn't exist");
         return _token_events[token];
     }
 
-    function addTokenEvent(uint256 eventId, uint256 token)
-        internal
-        eventExist(eventId)
-    {
+    function addTokenEvent(uint256 eventId, uint256 token) internal {
+        _requireEventExist(eventId);
         require(
             _token_events[token] == uint256(0),
             "Poap: token already existed"

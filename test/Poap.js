@@ -28,6 +28,7 @@ describe("Poap main test", function () {
     // Status checking
     expect(await contract.name()).to.equal("FutureXPoap");
     expect(await contract.symbol()).to.equal("FutureXPoap");
+    expect(await contract.paused()).to.equal(false);
     expect(await contract.isAdmin(owner.address)).to.equal(true);
     expect(await contract.isAdmin(addr1.address)).to.equal(true);
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
@@ -107,6 +108,18 @@ describe("Poap main test", function () {
     await contract.setBaseURI(afterBaseURI);
     await checkPoap(owner.address, afterBaseURI, 0, contract, 1, 1, eventId)
   });
+
+  it("Should check POAP pause", async function () {
+    const { owner, contract, addr1, addr2, baseURI } = await loadFixture(contractFixture);
+    const eventId = 1;
+    await contract.pause();
+
+    await expect(contract.createEvent("https://futurex.dev/token/temp#3")).to.be.revertedWith("Pausable: paused");
+    await expect(contract.mintToken(eventId, "poap-1", owner.address)).to.be.revertedWith("Pausable: paused");
+    await expect(contract.mintEventToManyUsers(eventId, ["poap-2", "poap-3"], [owner.address, addr1.address])).to.be.revertedWith("Pausable: paused");
+    await expect(contract.burn(1)).to.be.revertedWith("Pausable: paused");
+  });
+
   // it("Should check POAP transforms", async function() {
   // });
 });
