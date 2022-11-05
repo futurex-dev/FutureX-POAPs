@@ -39,7 +39,7 @@ contract PoapEvent is Initializable {
         emit EventAdded(eventId, msg.sender, eventURI);
     }
 
-    function addEventUser(uint256 eventId, address user) internal {
+    function _addEventUser(uint256 eventId, address user) internal {
         _requireEventExist(eventId);
         require(
             _event_infos[eventId].reverse_index[user] == uint256(0),
@@ -52,7 +52,7 @@ contract PoapEvent is Initializable {
         _event_infos[eventId].users.push(user);
     }
 
-    function removeEventUser(uint256 eventId, address user) internal {
+    function _removeEventUser(uint256 eventId, address user) internal {
         _requireEventExist(eventId);
         require(
             _event_infos[eventId].reverse_index[user] != uint256(0),
@@ -76,11 +76,21 @@ contract PoapEvent is Initializable {
         return _event_infos[eventId].reverse_index[user] != uint256(0);
     }
 
-    function eventMetaURI(uint256 eventId)
-        external
+    function balanceOfEvent(uint256 eventId) public view returns (uint256) {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].users.length;
+    }
+
+    function userOfEventByIndex(uint256 eventId, uint256 index)
+        public
         view
-        returns (string memory)
+        returns (address)
     {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].users[index];
+    }
+
+    function eventMetaURI(uint256 eventId) public view returns (string memory) {
         _requireEventExist(eventId);
         return _event_infos[eventId].meta_uri;
     }
@@ -90,7 +100,7 @@ contract PoapEvent is Initializable {
         return _token_events[token];
     }
 
-    function addTokenEvent(uint256 eventId, uint256 token) internal {
+    function _addTokenEvent(uint256 eventId, uint256 token) internal {
         _requireEventExist(eventId);
         require(
             _token_events[token] == uint256(0),
@@ -99,7 +109,7 @@ contract PoapEvent is Initializable {
         _token_events[token] = eventId;
     }
 
-    function removeTokenEvent(uint256 token) internal {
+    function _removeTokenEvent(uint256 token) internal {
         _token_events[token] = uint256(0);
     }
 

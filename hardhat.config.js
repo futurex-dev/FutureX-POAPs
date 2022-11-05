@@ -11,7 +11,6 @@ require('@openzeppelin/hardhat-upgrades');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 require('dotenv').config();
-require("@nomiclabs/hardhat-ethers");
 require('hardhat-contract-sizer');
 require("./tasks/upgrade-poap")
 require("./tasks/deploy-poap")

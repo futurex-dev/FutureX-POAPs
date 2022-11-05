@@ -9,15 +9,6 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "./PoapRoles.sol";
 import "./PoapEvent.sol";
 
-// Desired Features
-// - Add Event
-// - Add Event Organizer
-// - Mint token for an event
-// - Batch Mint
-// - Burn Tokens (only admin?)
-// - Pause contract (only admin)
-// - ERC721 full interface (base, metadata, enumerable)
-
 contract Poap is
     Initializable,
     ERC721EnumerableUpgradeable,
@@ -73,6 +64,14 @@ contract Poap is
         _bbaseURI = __baseURI;
     }
 
+    function eventOfOwnerByIndex(address owner, uint256 index)
+        external
+        view
+        returns (uint256)
+    {
+        return tokenEvent(tokenOfOwnerByIndex(owner, index));
+    }
+
     /**
      * @dev Function to mint tokens
      * @param eventId EventId for the new token
@@ -118,8 +117,8 @@ contract Poap is
      */
     function burn(uint256 tokenId) external whenNotPaused {
         require(_isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender));
-        removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
-        removeTokenEvent(tokenId);
+        _removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
+        _removeTokenEvent(tokenId);
         _burn(tokenId);
     }
 
@@ -191,8 +190,8 @@ contract Poap is
     ) internal whenNotPaused returns (bool) {
         _mint(to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
-        addEventUser(eventId, to);
-        addTokenEvent(eventId, tokenId);
+        _addEventUser(eventId, to);
+        _addTokenEvent(eventId, tokenId);
         emit EventToken(eventId, tokenId);
         return true;
     }
@@ -201,8 +200,26 @@ contract Poap is
         address from,
         address to,
         uint256 tokenId
-    ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
+    )
+        internal
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+        whenNotPaused
+    {
         super._beforeTokenTransfer(from, to, tokenId);
+
+        if (from == address(0)) {
+            // mint, do nothing
+            return;
+        }
+        if (to == address(0)) {
+            // burn, do nothing
+            return;
+        }
+        if (from != to) {
+            // real transfer
+            _removeEventUser(tokenEvent(tokenId), from);
+            _addEventUser(tokenEvent(tokenId), to);
+        }
     }
 
     function _burn(uint256 tokenId)
