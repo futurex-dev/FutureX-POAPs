@@ -113,6 +113,7 @@ describe("Poap main test", function () {
 
 
     await contract.burn(2); // burn (eventId, owner)
+    await expect(contract.connect(addr2).burn(3)).to.be.revertedWith("Poap: no access to burn");
     await checkPoap(owner.address, baseURI, 0, contract, 1, 1, eventId)
     expect(await contract.balanceOfEvent(eventId2)).to.equal(2);
 
@@ -134,5 +135,25 @@ describe("Poap main test", function () {
 
     await contract.unpause();
     expect(await contract.paused()).to.equal(false);
+  });
+  it("Should check POAP transfer", async function () {
+    const { owner, contract, addr1, addr2, baseURI } = await loadFixture(contractFixture);
+    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1");
+    const eventId2 = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2");
+
+    await contract.mintToken(eventId, "poap-1", owner.address);
+    await contract.mintToken(eventId2, "poap-2", addr1.address);
+    await contract.mintToken(eventId2, "poap-3", addr2.address);
+
+    expect(await contract.eventHasUser(eventId2, owner.address)).to.equal(false);
+    await contract.connect(addr1).transferFrom(addr1.address, owner.address, 2);
+    expect(await contract.balanceOf(owner.address)).to.equal(2);
+    expect(await contract.balanceOf(addr1.address)).to.equal(0);
+    expect(await contract.eventHasUser(eventId2, owner.address)).to.equal(true);
+    expect(await contract.eventHasUser(eventId2, addr1.address)).to.equal(false);
+
+    // unable
+    await expect(contract.connect(addr2).transferFrom(addr2.address, owner.address, 3)).to.be.revertedWith("Poap: user already have this event");
+
   });
 });

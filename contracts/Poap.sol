@@ -116,7 +116,10 @@ contract Poap is
      * @param tokenId uint256 id of the ERC721 token to be burned.
      */
     function burn(uint256 tokenId) external whenNotPaused {
-        require(_isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender));
+        require(
+            _isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender),
+            "Poap: no access to burn"
+        );
         _removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
         _removeTokenEvent(tokenId);
         _burn(tokenId);
@@ -217,6 +220,10 @@ contract Poap is
         }
         if (from != to) {
             // real transfer
+            require(
+                !eventHasUser(tokenEvent(tokenId), to),
+                "Poap: user already have this event"
+            );
             _removeEventUser(tokenEvent(tokenId), from);
             _addEventUser(tokenEvent(tokenId), to);
         }
