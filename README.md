@@ -15,6 +15,20 @@
 
 *API not stable yet.*
 
+**C**reat **R**ead **U**pdate **D**elete:
+
+* **C**: Add Event - `creatEvent`
+
+* **C**: Add Event Organizer - `addEventMinter`
+* **C**: Add admin - `addAdmin`
+* **C**: Mint token *for* an event - `mintToken`
+* **C**: Batch Mint - `mintEventToManyUsers`
+* **R**: view all poaps for one user - (`balanceOf`, then `eventOfOwnerByIndex`)
+* **R**: view all users *for* one event - (`balanceOfEvent`, then `userOfEventByIndex`)
+* **U**: Pause contract - `pause`
+* **D**: Burn Tokens - `burn`
+*    : ERC721 interfaces - (base, URI, enumerable)
+
 Checkout `test/Poap.js` for more details.
 
 ## Deploy to local

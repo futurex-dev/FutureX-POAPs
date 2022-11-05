@@ -11,7 +11,9 @@ import "./Roles.sol";
 contract PoapEvent is Initializable {
     struct Event {
         string meta_uri;
-        mapping(address => bool) reverse_index;
+        bool status;
+        address[] users;
+        mapping(address => uint256) reverse_index;
     }
 
     event EventAdded(
@@ -24,27 +26,8 @@ contract PoapEvent is Initializable {
     mapping(uint256 => uint256) private _token_events;
     mapping(uint256 => bool) private _event_exist;
 
-    modifier eventExist(uint256 eventId) {
+    function _requireEventExist(uint256 eventId) internal view {
         require(_event_exist[eventId], "Poap: event not exists");
-        _;
-    }
-
-    modifier eventNotExist(uint256 eventId) {
-        require(!_event_exist[eventId], "Poap: event already existed");
-        _;
-    }
-
-    modifier userNotExist(uint256 eventId, address user) {
-        require(
-            !_event_infos[eventId].reverse_index[user],
-            "Poap: already assigned the event"
-        );
-        _;
-    }
-
-    modifier tokenExist(uint256 token) {
-        require(_token_events[token] != uint256(0), "Poap: token wasn't exist");
-        _;
     }
 
     function __EVENT_init() public initializer {}
@@ -56,56 +39,69 @@ contract PoapEvent is Initializable {
         emit EventAdded(eventId, msg.sender, eventURI);
     }
 
-    function addEventUser(uint256 eventId, address user)
-        internal
-        eventExist(eventId)
-        userNotExist(eventId, user)
-    {
-        _event_infos[eventId].reverse_index[user] = true;
+    function _addEventUser(uint256 eventId, address user) internal {
+        _requireEventExist(eventId);
+        require(
+            _event_infos[eventId].reverse_index[user] == uint256(0),
+            "Poap: already assigned the event"
+        );
+        // user indexs start from 1
+        _event_infos[eventId].reverse_index[user] =
+            _event_infos[eventId].users.length +
+            1;
+        _event_infos[eventId].users.push(user);
     }
 
-    function removeEventUser(uint256 eventId, address user)
-        internal
-        eventExist(eventId)
-    {
+    function _removeEventUser(uint256 eventId, address user) internal {
+        _requireEventExist(eventId);
         require(
-            _event_infos[eventId].reverse_index[user],
+            _event_infos[eventId].reverse_index[user] != uint256(0),
             "Poap: user didn't exist"
         );
-        _event_infos[eventId].reverse_index[user] = false;
+        uint256 user_index = _event_infos[eventId].reverse_index[user] - 1;
+        uint256 total_users = _event_infos[eventId].users.length - 1;
+        _event_infos[eventId].users[user_index] = _event_infos[eventId].users[
+            total_users
+        ];
+        delete _event_infos[eventId].reverse_index[user];
+        _event_infos[eventId].users.pop();
     }
 
     function eventHasUser(uint256 eventId, address user)
         public
         view
-        eventExist(eventId)
         returns (bool)
     {
-        return _event_infos[eventId].reverse_index[user];
+        _requireEventExist(eventId);
+        return _event_infos[eventId].reverse_index[user] != uint256(0);
     }
 
-    function eventMetaURI(uint256 eventId)
-        external
+    function balanceOfEvent(uint256 eventId) public view returns (uint256) {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].users.length;
+    }
+
+    function userOfEventByIndex(uint256 eventId, uint256 index)
+        public
         view
-        eventExist(eventId)
-        returns (string memory)
+        returns (address)
     {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].users[index];
+    }
+
+    function eventMetaURI(uint256 eventId) public view returns (string memory) {
+        _requireEventExist(eventId);
         return _event_infos[eventId].meta_uri;
     }
 
-    function tokenEvent(uint256 token)
-        public
-        view
-        tokenExist(token)
-        returns (uint256)
-    {
+    function tokenEvent(uint256 token) public view returns (uint256) {
+        require(_token_events[token] != uint256(0), "Poap: token wasn't exist");
         return _token_events[token];
     }
 
-    function addTokenEvent(uint256 eventId, uint256 token)
-        internal
-        eventExist(eventId)
-    {
+    function _addTokenEvent(uint256 eventId, uint256 token) internal {
+        _requireEventExist(eventId);
         require(
             _token_events[token] == uint256(0),
             "Poap: token already existed"
@@ -113,7 +109,7 @@ contract PoapEvent is Initializable {
         _token_events[token] = eventId;
     }
 
-    function removeTokenEvent(uint256 token) internal {
+    function _removeTokenEvent(uint256 token) internal {
         _token_events[token] = uint256(0);
     }
 

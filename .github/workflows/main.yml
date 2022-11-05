@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           npm install
-      - name: Build contracts
+      - name: Build
         run: npx hardhat compile
       - name: Run test and coverage
         run: npx hardhat coverage --testfiles "test/*.js"
@@ -32,7 +32,7 @@ jobs:
         uses: andstor/file-existence-action@v1
         with:
           files: "./coverage.json"
-      - name: Upload coverage from test to Codecov
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           file: ./coverage.json
