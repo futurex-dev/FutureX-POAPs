@@ -5,13 +5,13 @@ const { ethers, upgrades } = require("hardhat");
 
 describe("Poap main test", function () {
   async function contractFixture() {
-    const [owner, addr1, addr2] = await ethers.getSigners();
+    const [owner, addr1, addr2, addr3] = await ethers.getSigners();
     const poapName = "FutureXPoap";
     const FPoap = await ethers.getContractFactory("Poap");
     const contract = await upgrades.deployProxy(FPoap, [poapName, poapName, [addr1.address]], { initializer: '__POAP_init' });
     await contract.deployed();
     // Fixtures can return anything you consider useful for your tests
-    return { owner, addr1, addr2, contract, poapName };
+    return { owner, addr1, addr2, addr3, contract, poapName };
   }
 
   async function unwrapCreateEvent(contract, eventName) {
@@ -51,9 +51,8 @@ describe("Poap main test", function () {
     expect(await contract.tokenEvent(await contract.tokenOfOwnerByIndex(owner.address, 0))).to.equal(eventId);
   });
   it("Should check POAPRole", async function () {
-    const { owner, contract, addr1, addr2 } = await loadFixture(contractFixture);
+    const { owner, contract, addr1, addr2, addr3 } = await loadFixture(contractFixture);
 
-    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2");
     // -------------------
     // PoapRole admin
     await contract.connect(addr1).renounceAdmin(); // msg.send = addr1
@@ -67,15 +66,24 @@ describe("Poap main test", function () {
     expect(await contract.isAdmin(addr1.address)).to.equal(true);
     // -------------------
     // PoapRole event minter
+    const eventId = await unwrapCreateEvent(contract.connect(addr3), "https://futurex.dev/token/temp#2");
+
+    expect(await contract.isEventCreator(eventId, addr3.address)).to.equal(true);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
     await contract.addEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
+    expect(await contract.isEventCreator(eventId, addr2.address)).to.equal(false);
     await contract.removeEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
     await contract.addEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
     await contract.connect(addr2).renounceEventMinter(eventId);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
+
+    await contract.connect(addr3).renounceEventCreator(eventId);
+    expect(await contract.isEventCreator(eventId, addr3.address)).to.equal(false);
+    expect(await contract.isEventMinter(eventId, addr3.address)).to.equal(false);
+
   });
   it("Should check POAP CRUD", async function () {
     const { owner, contract, addr1, addr2 } = await loadFixture(contractFixture);

@@ -37,18 +37,22 @@ contract Poap is
     {
         lastEventId.increment();
         _createEvent(lastEventId.current(), eventURI);
-        _addEventMinter(lastEventId.current(), msg.sender);
+        _addEventCreator(lastEventId.current(), msg.sender);
 
         return lastEventId.current();
     }
 
     function authorize(uint256 eventId) public {
         _requireAdmin();
+        _requireEventExist(eventId);
+
         _authorize(eventId);
     }
 
     function unauthorize(uint256 eventId) public {
         _requireAdmin();
+        _requireEventExist(eventId);
+
         _unauthorize(eventId);
     }
 
@@ -82,8 +86,14 @@ contract Poap is
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintToken(uint256 eventId, address to) external returns (bool) {
+    function mintToken(uint256 eventId, address to)
+        external
+        whenNotPaused
+        returns (bool)
+    {
         _requireEventMinter(eventId);
+        _requireEventExist(eventId);
+
         lastId.increment();
         return _mintToken(eventId, lastId.current(), to);
     }
@@ -96,9 +106,12 @@ contract Poap is
      */
     function mintEventToManyUsers(uint256 eventId, address[] calldata to)
         external
+        whenNotPaused
         returns (bool)
     {
         _requireEventMinter(eventId);
+        _requireEventExist(eventId);
+
         for (uint256 i = 0; i < to.length; ++i) {
             lastId.increment();
             _mintToken(eventId, lastId.current(), to[i]);
@@ -172,7 +185,7 @@ contract Poap is
         uint256 eventId,
         uint256 tokenId,
         address to
-    ) internal whenNotPaused returns (bool) {
+    ) internal returns (bool) {
         _mint(to, tokenId);
         _addEventUser(eventId, to);
         _addTokenEvent(eventId, tokenId);
@@ -203,6 +216,17 @@ contract Poap is
             );
             _removeEventUser(tokenEvent(tokenId), from);
             _addEventUser(tokenEvent(tokenId), to);
+        }
+    }
+
+    function _beforeAddEventMinter(uint256 eventId, address account)
+        internal
+        override
+    {
+        // A event minter must have the event poap
+        if (!eventHasUser(eventId, account)) {
+            lastId.increment();
+            _mintToken(eventId, lastId.current(), account);
         }
     }
 }
