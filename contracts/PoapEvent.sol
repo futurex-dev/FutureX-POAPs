@@ -113,6 +113,21 @@ contract PoapEvent is Initializable {
         _token_events[token] = uint256(0);
     }
 
+    function _authorize(uint256 eventId) internal {
+        _requireEventExist(eventId);
+        _event_infos[eventId].status = true;
+    }
+
+    function _unauthorize(uint256 eventId) internal {
+        _requireEventExist(eventId);
+        _event_infos[eventId].status = false;
+    }
+
+    function authorized(uint256 eventId) public view returns (bool) {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].status;
+    }
+
     // For future extensions
     uint256[50] private ______gap;
 }

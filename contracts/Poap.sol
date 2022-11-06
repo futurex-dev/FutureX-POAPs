@@ -3,26 +3,23 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "./PoapRoles.sol";
 import "./PoapEvent.sol";
 
 contract Poap is
     Initializable,
     ERC721EnumerableUpgradeable,
-    ERC721URIStorageUpgradeable,
     PausableUpgradeable,
     PoapEvent,
     PoapRoles
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
+    using StringsUpgradeable for uint256;
 
     event EventToken(uint256 eventId, uint256 tokenId);
-
-    // Base token URI
-    string private _bbaseURI;
 
     // Last Used id (used to generate new ids)
     CountersUpgradeable.Counter private lastId;
@@ -45,6 +42,16 @@ contract Poap is
         return lastEventId.current();
     }
 
+    function authorize(uint256 eventId) public {
+        _requireAdmin();
+        _authorize(eventId);
+    }
+
+    function unauthorize(uint256 eventId) public {
+        _requireAdmin();
+        _unauthorize(eventId);
+    }
+
     /**
      * @dev Function to view poap's uri
      * @param tokenId poap's token id.
@@ -53,15 +60,12 @@ contract Poap is
     function tokenURI(uint256 tokenId)
         public
         view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        override
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
-    }
+        _requireMinted(tokenId);
 
-    function setBaseURI(string calldata __baseURI) external {
-        _requireAdmin();
-        _bbaseURI = __baseURI;
+        return eventMetaURI(tokenEvent(tokenId));
     }
 
     function eventOfOwnerByIndex(address owner, uint256 index)
@@ -78,14 +82,10 @@ contract Poap is
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintToken(
-        uint256 eventId,
-        string calldata _tokenURI,
-        address to
-    ) external returns (bool) {
+    function mintToken(uint256 eventId, address to) external returns (bool) {
         _requireEventMinter(eventId);
         lastId.increment();
-        return _mintToken(eventId, lastId.current(), _tokenURI, to);
+        return _mintToken(eventId, lastId.current(), to);
     }
 
     /**
@@ -94,19 +94,14 @@ contract Poap is
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintEventToManyUsers(
-        uint256 eventId,
-        string[] calldata _tokenURI,
-        address[] calldata to
-    ) external returns (bool) {
-        require(
-            _tokenURI.length == to.length,
-            "Poap: urls need the same length with users"
-        );
+    function mintEventToManyUsers(uint256 eventId, address[] calldata to)
+        external
+        returns (bool)
+    {
         _requireEventMinter(eventId);
         for (uint256 i = 0; i < to.length; ++i) {
             lastId.increment();
-            _mintToken(eventId, lastId.current(), _tokenURI[i], to[i]);
+            _mintToken(eventId, lastId.current(), to[i]);
         }
         return true;
     }
@@ -135,15 +130,6 @@ contract Poap is
         _unpause();
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
     /**
      * @dev Gets the token ID at a given index of the tokens list of the requested owner
      * @param owner address owning the tokens list to be accessed
@@ -163,7 +149,6 @@ contract Poap is
     function __POAP_init(
         string calldata __name,
         string calldata __symbol,
-        string calldata __baseURI,
         address[] calldata admins
     ) public initializer {
         ERC721Upgradeable.__ERC721_init(__name, __symbol);
@@ -174,8 +159,6 @@ contract Poap is
         for (uint256 i = 0; i < admins.length; ++i) {
             _addAdmin(admins[i]);
         }
-
-        _bbaseURI = __baseURI;
     }
 
     /**
@@ -188,11 +171,9 @@ contract Poap is
     function _mintToken(
         uint256 eventId,
         uint256 tokenId,
-        string calldata _tokenURI,
         address to
     ) internal whenNotPaused returns (bool) {
         _mint(to, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
         _addEventUser(eventId, to);
         _addTokenEvent(eventId, tokenId);
         emit EventToken(eventId, tokenId);
@@ -203,11 +184,7 @@ contract Poap is
         address from,
         address to,
         uint256 tokenId
-    )
-        internal
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
-        whenNotPaused
-    {
+    ) internal override whenNotPaused {
         super._beforeTokenTransfer(from, to, tokenId);
 
         if (from == address(0)) {
@@ -227,16 +204,5 @@ contract Poap is
             _removeEventUser(tokenEvent(tokenId), from);
             _addEventUser(tokenEvent(tokenId), to);
         }
-    }
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-    {
-        super._burn(tokenId);
-    }
-
-    function _baseURI() internal view override returns (string memory) {
-        return _bbaseURI;
     }
 }

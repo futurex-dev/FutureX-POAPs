@@ -2,10 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "./PoapEvent.sol";
 import "./Roles.sol";
 
-contract PoapRoles is Initializable, PoapEvent {
+contract PoapRoles is Initializable {
     using Roles for Roles.Role;
 
     event AdminAdded(address indexed account);
@@ -84,7 +83,6 @@ contract PoapRoles is Initializable, PoapEvent {
     }
 
     function _removeEventMinter(uint256 eventId, address account) internal {
-        _requireEventExist(eventId);
         _minters[eventId].remove(account);
         emit EventMinterRemoved(eventId, account);
     }
