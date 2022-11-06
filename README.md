@@ -25,7 +25,10 @@
 * **C**: Batch Mint - `mintEventToManyUsers`
 * **R**: view all poaps for one user - (`balanceOf`, then `eventOfOwnerByIndex`)
 * **R**: view all users *for* one event - (`balanceOfEvent`, then `userOfEventByIndex`)
-* **U**: Pause contract - `pause`
+* **R**: view user role - `isEventMinter`, `isEventCreator`, `isAdmin`
+* **R**: view event infos - `eventHasUser`, `eventMetaURI`
+* **U**: Pause or un-pause contract - `pause`, `unpause`
+* **U**: Authorize or un-authorize contract - `authorize`, `unauthorize`
 * **D**: Burn Tokens - `burn`
 *    : ERC721 interfaces - (base, URI, enumerable)
 
