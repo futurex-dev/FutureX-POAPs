@@ -8,7 +8,6 @@
       <img src="https://codecov.io/gh/futurex-dev/FutureX-POAPs/branch/main/graph/badge.svg?token=3MFLA63A1L"/>
     </a>
   </p>
-  <p> <i> Adapted from <a href="https://github.com/poap-xyz/poap-contracts">poap-xyz/poap-contracts</a></i></p>
 </div>
 
 ## Core functions
@@ -60,3 +59,9 @@ REPORT_GAS=true npx hardhat test # estimate the contracts gas fee. Extremly SLOW
 
 npx hardhat run scripts/deploy.js --network XXX # not ready yet
 ```
+
+
+
+## Acknowledgement
+
+Thanks to the great open-sourced POAPs [contract](https://github.com/poap-xyz/poap-contracts) from [poap.xyz](https://github.com/poap-xyz) !
