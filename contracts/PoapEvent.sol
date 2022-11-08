@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "./Roles.sol";
 
 /**
  * @title PoapEvent
@@ -30,6 +29,13 @@ contract PoapEvent is Initializable {
         require(_event_exist[eventId], "Poap: event not exists");
     }
 
+    function _requireUserNotExist(uint256 eventId, address user) internal view {
+        require(
+            _event_infos[eventId].reverse_index[user] == uint256(0),
+            "Poap: already assigned the event"
+        );
+    }
+
     function __EVENT_init() public initializer {}
 
     function _createEvent(uint256 eventId, string memory eventURI) internal {
@@ -40,11 +46,6 @@ contract PoapEvent is Initializable {
     }
 
     function _addEventUser(uint256 eventId, address user) internal {
-        _requireEventExist(eventId);
-        require(
-            _event_infos[eventId].reverse_index[user] == uint256(0),
-            "Poap: already assigned the event"
-        );
         // user indexs start from 1
         _event_infos[eventId].reverse_index[user] =
             _event_infos[eventId].users.length +
@@ -53,7 +54,6 @@ contract PoapEvent is Initializable {
     }
 
     function _removeEventUser(uint256 eventId, address user) internal {
-        _requireEventExist(eventId);
         require(
             _event_infos[eventId].reverse_index[user] != uint256(0),
             "Poap: user didn't exist"
@@ -72,7 +72,6 @@ contract PoapEvent is Initializable {
         view
         returns (bool)
     {
-        _requireEventExist(eventId);
         return _event_infos[eventId].reverse_index[user] != uint256(0);
     }
 
@@ -87,6 +86,11 @@ contract PoapEvent is Initializable {
         returns (address)
     {
         _requireEventExist(eventId);
+        require(
+            index < _event_infos[eventId].users.length,
+            "Poap: index out of range"
+        );
+
         return _event_infos[eventId].users[index];
     }
 
@@ -101,7 +105,6 @@ contract PoapEvent is Initializable {
     }
 
     function _addTokenEvent(uint256 eventId, uint256 token) internal {
-        _requireEventExist(eventId);
         require(
             _token_events[token] == uint256(0),
             "Poap: token already existed"
@@ -111,6 +114,19 @@ contract PoapEvent is Initializable {
 
     function _removeTokenEvent(uint256 token) internal {
         _token_events[token] = uint256(0);
+    }
+
+    function _authorize(uint256 eventId) internal {
+        _event_infos[eventId].status = true;
+    }
+
+    function _unauthorize(uint256 eventId) internal {
+        _event_infos[eventId].status = false;
+    }
+
+    function authorized(uint256 eventId) public view returns (bool) {
+        _requireEventExist(eventId);
+        return _event_infos[eventId].status;
     }
 
     // For future extensions

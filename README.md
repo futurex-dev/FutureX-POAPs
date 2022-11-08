@@ -8,7 +8,6 @@
       <img src="https://codecov.io/gh/futurex-dev/FutureX-POAPs/branch/main/graph/badge.svg?token=3MFLA63A1L"/>
     </a>
   </p>
-  <p> <i> Adapted from <a href="https://github.com/poap-xyz/poap-contracts">poap-xyz/poap-contracts</a></i></p>
 </div>
 
 ## Core functions
@@ -25,7 +24,10 @@
 * **C**: Batch Mint - `mintEventToManyUsers`
 * **R**: view all poaps for one user - (`balanceOf`, then `eventOfOwnerByIndex`)
 * **R**: view all users *for* one event - (`balanceOfEvent`, then `userOfEventByIndex`)
-* **U**: Pause contract - `pause`
+* **R**: view user role - `isEventMinter`, `isEventCreator`, `isAdmin`
+* **R**: view event infos - `eventHasUser`, `eventMetaURI`
+* **U**: Pause or un-pause contract - `pause`, `unpause`
+* **U**: Authorize or un-authorize contract - `authorize`, `unauthorize`
 * **D**: Burn Tokens - `burn`
 *    : ERC721 interfaces - (base, URI, enumerable)
 
@@ -57,3 +59,9 @@ REPORT_GAS=true npx hardhat test # estimate the contracts gas fee. Extremly SLOW
 
 npx hardhat run scripts/deploy.js --network XXX # not ready yet
 ```
+
+
+
+## Acknowledgement
+
+Thanks to the great open-sourced POAPs [contract](https://github.com/poap-xyz/poap-contracts) from [poap.xyz](https://github.com/poap-xyz) !
