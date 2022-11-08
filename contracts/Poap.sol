@@ -93,6 +93,7 @@ contract Poap is
     {
         _requireEventMinter(eventId);
         _requireEventExist(eventId);
+        _requireUserNotExist(eventId, to);
 
         lastId.increment();
         return _mintToken(eventId, lastId.current(), to);
@@ -113,6 +114,7 @@ contract Poap is
         _requireEventExist(eventId);
 
         for (uint256 i = 0; i < to.length; ++i) {
+            _requireUserNotExist(eventId, to[i]);
             lastId.increment();
             _mintToken(eventId, lastId.current(), to[i]);
         }
@@ -210,10 +212,8 @@ contract Poap is
         }
         if (from != to) {
             // real transfer
-            require(
-                !eventHasUser(tokenEvent(tokenId), to),
-                "Poap: user already have this event"
-            );
+            _requireUserNotExist(tokenEvent(tokenId), to);
+
             _removeEventUser(tokenEvent(tokenId), from);
             _addEventUser(tokenEvent(tokenId), to);
         }

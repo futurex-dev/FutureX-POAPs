@@ -165,7 +165,7 @@ describe("Poap main test", function () {
     expect(await contract.eventHasUser(eventId2, addr1.address)).to.equal(false);
 
     // unable
-    await expect(contract.connect(addr2).transferFrom(addr2.address, owner.address, 3)).to.be.revertedWith("Poap: user already have this event");
+    await expect(contract.connect(addr2).transferFrom(addr2.address, owner.address, 3)).to.be.revertedWith("Poap: already assigned the event");
 
   });
 });

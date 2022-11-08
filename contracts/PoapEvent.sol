@@ -29,6 +29,13 @@ contract PoapEvent is Initializable {
         require(_event_exist[eventId], "Poap: event not exists");
     }
 
+    function _requireUserNotExist(uint256 eventId, address user) internal view {
+        require(
+            _event_infos[eventId].reverse_index[user] == uint256(0),
+            "Poap: already assigned the event"
+        );
+    }
+
     function __EVENT_init() public initializer {}
 
     function _createEvent(uint256 eventId, string memory eventURI) internal {
@@ -39,10 +46,6 @@ contract PoapEvent is Initializable {
     }
 
     function _addEventUser(uint256 eventId, address user) internal {
-        require(
-            _event_infos[eventId].reverse_index[user] == uint256(0),
-            "Poap: already assigned the event"
-        );
         // user indexs start from 1
         _event_infos[eventId].reverse_index[user] =
             _event_infos[eventId].users.length +
