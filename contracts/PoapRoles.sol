@@ -67,6 +67,7 @@ contract PoapRoles is Initializable {
         require(_creators[eventId] == address(0), "Poap: already have creator");
 
         _creators[eventId] = account;
+        _beforeAddEventMinter(eventId, account);
 
         emit EventCreatorAdded(eventId, account);
     }
