@@ -212,10 +212,20 @@ contract Poap is
         }
         if (from != to) {
             // real transfer
-            _requireUserNotExist(tokenEvent(tokenId), to);
+            uint256 eventId = tokenEvent(tokenId);
+            _requireUserNotExist(eventId, to);
 
-            _removeEventUser(tokenEvent(tokenId), from);
-            _addEventUser(tokenEvent(tokenId), to);
+            _removeEventUser(eventId, from);
+            _addEventUser(eventId, to);
+
+            if (isEventMinter(eventId, from)) {
+                if (isEventCreator(eventId, from)) {
+                    _changeEventCreator(eventId, from);
+                } else {
+                    _removeEventMinter(eventId, from);
+                    _addEventMinter(eventId, to);
+                }
+            }
         }
     }
 

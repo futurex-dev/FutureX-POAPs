@@ -101,13 +101,13 @@ describe("Poap main test", function () {
     }
     // -------------------
     // Poap mint checking
-    await contract.mintToken(eventId, owner.address);
-    await checkPoap(owner.address, eventURI, 0, contract, 1, 1, eventId)
+    // await contract.mintToken(eventId, owner.address);
+    await checkPoap(owner.address, eventURI, 0, contract, 2, 1, eventId)
     // each event can only assign once to one user
     await expect(contract.mintToken(eventId, owner.address)).to.be.revertedWith("Poap: already assigned the event");
     expect(await contract.balanceOfEvent(eventId)).to.equal(1);
 
-    await contract.mintEventToManyUsers(eventId2, [owner.address, addr1.address, addr2.address]);
+    await contract.mintEventToManyUsers(eventId2, [addr1.address, addr2.address]);
     await checkPoap(owner.address, eventURI2, 1, contract, 2, 2, eventId2)
     await checkPoap(addr1.address, eventURI2, 0, contract, 1, 3, eventId2)
     await checkPoap(addr2.address, eventURI2, 0, contract, 1, 4, eventId2)
@@ -149,23 +149,25 @@ describe("Poap main test", function () {
     expect(await contract.authorized(eventId)).to.equal(false);
   });
   it("Should check POAP transfer", async function () {
-    const { owner, contract, addr1, addr2 } = await loadFixture(contractFixture);
+    const { owner, contract, addr1, addr2, addr3 } = await loadFixture(contractFixture);
     const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1");
     const eventId2 = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2");
 
-    await contract.mintToken(eventId, owner.address);
-    await contract.mintToken(eventId2, addr1.address);
-    await contract.mintToken(eventId2, addr2.address);
-
-    expect(await contract.eventHasUser(eventId2, owner.address)).to.equal(false);
-    await contract.connect(addr1).transferFrom(addr1.address, owner.address, 2);
     expect(await contract.balanceOf(owner.address)).to.equal(2);
+
+    await contract.mintToken(eventId, addr3.address); // 3
+    await contract.mintToken(eventId2, addr1.address); // 4
+    await contract.mintToken(eventId2, addr2.address); // 5
+
+    expect(await contract.eventHasUser(eventId2, addr3.address)).to.equal(false);
+    await contract.connect(addr1).transferFrom(addr1.address, addr3.address, 4);
+    expect(await contract.balanceOf(addr3.address)).to.equal(2);
     expect(await contract.balanceOf(addr1.address)).to.equal(0);
-    expect(await contract.eventHasUser(eventId2, owner.address)).to.equal(true);
+    expect(await contract.eventHasUser(eventId2, addr3.address)).to.equal(true);
     expect(await contract.eventHasUser(eventId2, addr1.address)).to.equal(false);
 
     // unable
-    await expect(contract.connect(addr2).transferFrom(addr2.address, owner.address, 3)).to.be.revertedWith("Poap: already assigned the event");
+    await expect(contract.connect(addr2).transferFrom(addr2.address, addr3.address, 5)).to.be.revertedWith("Poap: already assigned the event");
 
   });
 });

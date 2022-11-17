@@ -11,6 +11,7 @@ contract PoapRoles is Initializable {
     event AdminRemoved(address indexed account);
     event EventCreatorAdded(uint256 indexed eventId, address indexed account);
     event EventCreatorRemoved(uint256 indexed eventId);
+    event EventCreatorChanged(uint256 indexed eventId, address indexed account);
     event EventMinterAdded(uint256 indexed eventId, address indexed account);
     event EventMinterRemoved(uint256 indexed eventId, address indexed account);
 
@@ -127,6 +128,11 @@ contract PoapRoles is Initializable {
     function _removeEventCreator(uint256 eventId) internal {
         delete _creators[eventId];
         emit EventCreatorRemoved(eventId);
+    }
+
+    function _changeEventCreator(uint256 eventId, address account) internal {
+        _creators[eventId] = account;
+        emit EventCreatorChanged(eventId, account);
     }
 
     function _removeAdmin(address account) internal {
