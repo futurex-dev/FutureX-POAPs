@@ -92,6 +92,9 @@ describe("Poap main test", function () {
     const eventId = await unwrapCreateEvent(contract, eventURI);
     const eventURI2 = "https://futurex.dev/token/temp#4"
     const eventId2 = await unwrapCreateEvent(contract, eventURI2);
+
+    expect(await contract.isEventCreator(eventId, owner.address)).to.be.equal(true);
+    expect(await contract.isEventCreator(eventId2, owner.address)).to.be.equal(true);
     async function checkPoap(address, eventURI, index, contract, shouldBalance, shouldId, shouldEvent) {
       expect(await contract.balanceOf(address)).to.equal(shouldBalance);
       const [tokenId, eventId] = await contract.tokenDetailsOfOwnerByIndex(address, index);
@@ -150,12 +153,13 @@ describe("Poap main test", function () {
   });
   it("Should check POAP transfer", async function () {
     const { owner, contract, addr1, addr2, addr3 } = await loadFixture(contractFixture);
-    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1");
-    const eventId2 = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2");
+    const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1"); // 1
+    const eventId2 = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#2"); // 2
 
     expect(await contract.balanceOf(owner.address)).to.equal(2);
 
     await contract.mintToken(eventId, addr3.address); // 3
+    await contract.addEventMinter(eventId, addr3.address);
     await contract.mintToken(eventId2, addr1.address); // 4
     await contract.mintToken(eventId2, addr2.address); // 5
 
@@ -169,5 +173,13 @@ describe("Poap main test", function () {
     // unable
     await expect(contract.connect(addr2).transferFrom(addr2.address, addr3.address, 5)).to.be.revertedWith("Poap: already assigned the event");
 
+    // role transfer;
+    await contract.transferFrom(owner.address, addr1.address, 1);
+    expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(true);
+
+    expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(true);
+    await contract.connect(addr3).transferFrom(addr3.address, addr2.address, 3);
+    expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(false);
+    expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(true);
   });
 });
