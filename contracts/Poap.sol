@@ -130,8 +130,17 @@ contract Poap is
             _isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender),
             "Poap: no access to burn"
         );
+        uint256 eventId = tokenEvent(tokenId);
+        address to = ownerOf(tokenId);
         _removeEventUser(tokenEvent(tokenId), ownerOf(tokenId));
         _removeTokenEvent(tokenId);
+        if (isEventMinter(eventId, to)) {
+            if (isEventCreator(eventId, to)) {
+                _changeEventCreator(eventId, address(0));
+            } else {
+                _removeEventMinter(eventId, to);
+            }
+        }
         _burn(tokenId);
     }
 
@@ -220,7 +229,7 @@ contract Poap is
 
             if (isEventMinter(eventId, from)) {
                 if (isEventCreator(eventId, from)) {
-                    _changeEventCreator(eventId, from);
+                    _changeEventCreator(eventId, to);
                 } else {
                     _removeEventMinter(eventId, from);
                     _addEventMinter(eventId, to);

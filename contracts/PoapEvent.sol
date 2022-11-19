@@ -60,9 +60,11 @@ contract PoapEvent is Initializable {
         );
         uint256 user_index = _event_infos[eventId].reverse_index[user] - 1;
         uint256 total_users = _event_infos[eventId].users.length - 1;
+        address lastUser = _event_infos[eventId].users[total_users];
         _event_infos[eventId].users[user_index] = _event_infos[eventId].users[
             total_users
         ];
+        _event_infos[eventId].reverse_index[lastUser] = user_index + 1;
         delete _event_infos[eventId].reverse_index[user];
         _event_infos[eventId].users.pop();
     }
