@@ -34,9 +34,36 @@ if (Goerli_API_URL) {
   };
 }
 
-const { Etherscan_API } = process.env;
-if (Etherscan_API) {
-  module.exports['etherscan'] = {
-    apiKey: Etherscan_API,
+const { Gnosis_PRIVATE_KEY } = process.env;
+if (Gnosis_PRIVATE_KEY) {
+  module.exports['networks']['gnosis'] = {
+    url: "https://rpc.gnosischain.com",
+    accounts: [`0x${Gnosis_PRIVATE_KEY}`],
   };
+}
+
+
+const { Etherscan_API } = process.env;
+const { Gnosis_API } = process.env;
+
+module.exports['etherscan'] = {
+  customChains: [
+    {
+      network: "gnosis",
+      chainId: 100,
+      urls: {
+        // 3) Select to what explorer verify the contracts
+        // Gnosisscan
+        apiURL: "https://api.gnosisscan.io/api",
+        browserURL: "https://gnosisscan.io/",
+        // Blockscout
+        // apiURL: "https://blockscout.com/xdai/mainnet/api",
+        // browserURL: "https://blockscout.com/xdai/mainnet",
+      },
+    },
+  ],
+  apiKey: {
+    mainnet: Etherscan_API,
+    gnosis: Gnosis_API
+  },
 }

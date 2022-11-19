@@ -33,7 +33,7 @@ describe("Poap main test", function () {
     expect(await contract.isAdmin(addr2.address)).to.equal(false);
     const eventId = await unwrapCreateEvent(contract, "https://futurex.dev/token/temp#1");
     expect(await contract.isEventMinter(eventId, owner.address)).to.equal(true);
-    expect(await contract.isEventMinter(eventId, addr1.address)).to.equal(true);
+    expect(await contract.isEventMinter(eventId, addr1.address)).to.equal(false);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
   });
   it("Should check POAPEvent", async function () {
@@ -41,7 +41,7 @@ describe("Poap main test", function () {
     const eventId_init = 1
     // -------------------
     // Poap event checking
-    await expect(contract.mintToken(eventId_init, owner.address)).to.be.revertedWith("Poap: event not exists");
+    // await expect(contract.mintToken(eventId_init, owner.address)).to.be.revertedWith("Poap: event not exists");
     const eventId = await unwrapCreateEvent(contract.connect(addr2), "https://futurex.dev/token/anyone");
     expect(await contract.eventMetaURI(eventId)).to.equal("https://futurex.dev/token/anyone");
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
@@ -70,12 +70,12 @@ describe("Poap main test", function () {
 
     expect(await contract.isEventCreator(eventId, addr3.address)).to.equal(true);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
-    await contract.addEventMinter(eventId, addr2.address);
+    await contract.connect(addr3).addEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
     expect(await contract.isEventCreator(eventId, addr2.address)).to.equal(false);
-    await contract.removeEventMinter(eventId, addr2.address);
+    await contract.connect(addr3).removeEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
-    await contract.addEventMinter(eventId, addr2.address);
+    await contract.connect(addr3).addEventMinter(eventId, addr2.address);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(true);
     await contract.connect(addr2).renounceEventMinter(eventId);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.equal(false);
@@ -176,10 +176,18 @@ describe("Poap main test", function () {
     // role transfer;
     await contract.transferFrom(owner.address, addr1.address, 1);
     expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(true);
+    expect(await contract.isEventCreator(eventId, owner.address)).to.be.equal(false);
 
     expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(true);
     await contract.connect(addr3).transferFrom(addr3.address, addr2.address, 3);
     expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(false);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(true);
+
+    await contract.burn(3); // burn (eventId, addr2) 
+    expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(false);
+    await contract.burn(1); // burn (eventId, addr1) 
+    expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(false);
+    expect(await contract.isEventMinter(eventId, addr1.address)).to.be.equal(false);
+
   });
 });

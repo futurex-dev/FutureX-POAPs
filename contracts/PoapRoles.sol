@@ -32,14 +32,14 @@ contract PoapRoles is Initializable {
     function _requireEventMinter(uint256 eventId) internal view {
         require(
             isEventMinter(eventId, msg.sender),
-            "Poap: only event-minter or admin can do it"
+            "Poap: only event-minter can do it"
         );
     }
 
     function _requireEventCreator(uint256 eventId) internal view {
         require(
             isEventCreator(eventId, msg.sender),
-            "Poap: only event-creator or admin can do it"
+            "Poap: only event-creator can do it"
         );
     }
 
@@ -52,7 +52,7 @@ contract PoapRoles is Initializable {
         view
         returns (bool)
     {
-        return isAdmin(account) || _creators[eventId] == account;
+        return _creators[eventId] == account;
     }
 
     function isEventMinter(uint256 eventId, address account)
