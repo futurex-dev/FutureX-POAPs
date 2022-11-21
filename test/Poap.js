@@ -183,9 +183,9 @@ describe("Poap main test", function () {
     expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(false);
     expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(false);
 
-    await contract.burn(3); // burn (eventId, addr2) 
+    await contract.connect(addr2).burn(3); // burn (eventId, addr2) 
     expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(false);
-    await contract.burn(1); // burn (eventId, addr1) 
+    await contract.connect(addr1).burn(1); // burn (eventId, addr1) 
     expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(false);
     expect(await contract.isEventMinter(eventId, addr1.address)).to.be.equal(false);
 

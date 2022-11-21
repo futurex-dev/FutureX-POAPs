@@ -127,7 +127,7 @@ contract Poap is
      */
     function burn(uint256 tokenId) external whenNotPaused {
         require(
-            _isApprovedOrOwner(msg.sender, tokenId) || isAdmin(msg.sender),
+            _isApprovedOrOwner(msg.sender, tokenId),
             "Poap: no access to burn"
         );
         uint256 eventId = tokenEvent(tokenId);
