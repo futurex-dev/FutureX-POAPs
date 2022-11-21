@@ -175,13 +175,13 @@ describe("Poap main test", function () {
 
     // role transfer;
     await contract.transferFrom(owner.address, addr1.address, 1);
-    expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(true);
+    expect(await contract.isEventCreator(eventId, addr1.address)).to.be.equal(false);
     expect(await contract.isEventCreator(eventId, owner.address)).to.be.equal(false);
 
     expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(true);
     await contract.connect(addr3).transferFrom(addr3.address, addr2.address, 3);
     expect(await contract.isEventMinter(eventId, addr3.address)).to.be.equal(false);
-    expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(true);
+    expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(false);
 
     await contract.burn(3); // burn (eventId, addr2) 
     expect(await contract.isEventMinter(eventId, addr2.address)).to.be.equal(false);

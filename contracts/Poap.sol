@@ -229,10 +229,11 @@ contract Poap is
 
             if (isEventMinter(eventId, from)) {
                 if (isEventCreator(eventId, from)) {
-                    _changeEventCreator(eventId, to);
+                    // _changeEventCreator(eventId, to);
+                    _changeEventCreator(eventId, address(0));
                 } else {
                     _removeEventMinter(eventId, from);
-                    _addEventMinter(eventId, to);
+                    // _addEventMinter(eventId, to);
                 }
             }
         }
