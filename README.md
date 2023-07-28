@@ -35,11 +35,13 @@ Checkout `test/Poap.js` for more details.
 
 ## Deploy to local
 
-1. Enable your local blockchain with command `npx hardhat node` first, and let this session stay opened.
+1. Install deps with `npm install`
 
-2. Run command `npx hardhat deploy-poap --network localhost` to deploy the Poaps. It shall output the proxy contract address [ADDRESS].
+2. Enable your local blockchain with command `npx hardhat node` first, and let this session stay opened.
 
-3. Interact with the contract using `npx hardhat console --network localhost`
+3. Run command `npx hardhat deploy-poap --network localhost` to deploy the Poaps. It shall output the proxy contract address [ADDRESS].
+
+4. Interact with the contract using `npx hardhat console --network localhost`
 
    ```javascript
    > const Poap = await ethers.getContractFactory("Poap")
@@ -48,7 +50,29 @@ Checkout `test/Poap.js` for more details.
    ...
    ```
 
-4. Stay the above console opened, you can update the contract functions under `contracts/*` and use `npx hardhat upgrade-poap --network localhost [ADDRESS] ` to upgrade. You can then continue testing the functions with `poap` object in step.3
+5. Stay the above console opened, you can update the contract functions under `contracts/*` and use `npx hardhat upgrade-poap --network localhost [ADDRESS] ` to upgrade. You can then continue testing the functions with `poap` object in step.3
+
+## Deploy to BlockChains
+
+Future-Poap supports Goerli testnet  and Gnosis sidechain for now, check out more details in `hardhat.config.js`. To enable deployment, create a `.env` file under root dir:
+
+For Gnosis, you should set up your private key and api token from gnosisscan:
+
+```
+Gnosis_PRIVATE_KEY = "XXX"
+Gnosis_API = "XXX"
+```
+
+For Goerli testnet, you should set up your private key and a provider's url(e.g. Alchemy):
+
+```
+Goerli_API_URL = "https://eth-goerli.g.alchemy.com/v2/XXX"
+Goerli_PRIVATE_KEY = "XXX"
+```
+
+Then you can deploy and interact the contract following the commands in "Deploy to local" section, but only replace all the `localhost` term to your network(`gnosis` for Gnosis, `goerli` for Goerli testnet).
+
+To add more chains, please refer to their documents about hardhat development.
 
 ## Commands  
 
@@ -57,7 +81,7 @@ npx hardhat compile # compile contracts to artifacts
 npx hardhat test # test the contracts using test/*.js 
 REPORT_GAS=true npx hardhat test # estimate the contracts gas fee. Extremly SLOW
 
-npx hardhat run scripts/deploy.js --network XXX # not ready yet
+npx hardhat run scripts/deploy.js --network XXX
 ```
 
 

@@ -11,6 +11,7 @@ require('@openzeppelin/hardhat-upgrades');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 require('dotenv').config();
+
 require('hardhat-contract-sizer');
 require("./tasks/upgrade-poap")
 require("./tasks/deploy-poap")
@@ -37,7 +38,12 @@ if (Goerli_API_URL) {
 const { Gnosis_PRIVATE_KEY } = process.env;
 if (Gnosis_PRIVATE_KEY) {
   module.exports['networks']['gnosis'] = {
+    accounts: [`0x${Gnosis_PRIVATE_KEY}`],
     url: "https://rpc.gnosischain.com",
+  };
+  module.exports['networks']['chiado'] = {
+    url: "https://rpc.chiadochain.net",
+    gasPrice: 1000000000,
     accounts: [`0x${Gnosis_PRIVATE_KEY}`],
   };
 }
